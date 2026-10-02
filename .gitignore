@@ -1,37 +1,12 @@
-# Generated experimental data — root level only (regenerate by running the programs).
-# Leading "/" anchors to repo root so upstream test vectors / docs under
-# latest-download/ (*.txt, *.md, ...) are NOT ignored.
+# Generated data (regenerate by running run.sh).
 /*.csv
 /*.log
 /*.err
 /*.json
 /*.txt
-/*.bin
 
-# Generated verification output directory (produced by verify_report.py).
-/latest-verification/
-
-# Compiled binaries (hyphenated names; tracked source uses underscores).
-/verify-*
-/measure-timing-*
-/measure-column-*
-/recover-*
-/enum-*
-/enumerate-*
-/search-*
-/classify-*
-/check-*
-/sample-*
-/obs-*
-/bdd-*
-/probe-plaintext-hypotheses
-/column-probe-*
-/audit-*
-/diag-*
-/jitter-*
-
-# Experiment completion markers.
-/*.done
+# Compiled binary.
+/recover-e2e-par
 
 # macOS
 .DS_Store
