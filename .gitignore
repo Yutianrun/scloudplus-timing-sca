@@ -26,6 +26,12 @@
 /bdd-*
 /probe-plaintext-hypotheses
 /column-probe-*
+/audit-*
+/diag-*
+/jitter-*
+
+# Experiment completion markers.
+/*.done
 
 # macOS
 .DS_Store

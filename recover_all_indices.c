@@ -52,8 +52,17 @@ static size_t real_bucket(const uint8_t *sk, const uint16_t *v,
     return generated_bytes / 544;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+    /* argv[1] = key seed (via krng, which drives randombytes in recover_demo.c);
+     * argv[2] = positions per coordinate to check (default: all scloudplus_n).
+     * Lets us confirm the probe geometry is KEY-INDEPENDENT: rows[] are multiples
+     * of the message scale (64), so a*trit (|.|<=16<32) never crosses a decode
+     * cell boundary at non-target coords -- robust for ANY key. Bucket labels are
+     * recomputed per key via profile_message(pke_pk,...). */
+    if (argc > 1) krng = strtoull(argv[1], 0, 10) | 1ULL;
+    unsigned per_coord = argc > 2 ? (unsigned)strtoul(argv[2], 0, 10) : scloudplus_n;
+    unsigned kstep = scloudplus_n / per_coord; if (!kstep) kstep = 1;
     uint8_t pk[scloudplus_pk], sk[scloudplus_kem_sk];
     if (scloud_kemkeygen(pk, sk)) return 1;
     const uint8_t *pke_pk = sk + scloudplus_pke_sk;
@@ -64,7 +73,7 @@ int main(void)
     puts("column,index,true,guess,base_obs,shift_obs,base_preds(-1,0,1),shift_preds(-1,0,1),pass");
     int all_pass = 1;
     size_t checked = 0;
-    for (unsigned k=0; k<scloudplus_n; k++) {
+    for (unsigned k=0; k<scloudplus_n; k+=kstep) {
       for (unsigned i=0; i<scloudplus_nbar; i++) {
         probe_def p = { aval[i], dval[i], {0} };
         memcpy(p.v, rows[i], sizeof(p.v));
