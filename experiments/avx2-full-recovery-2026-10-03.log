@@ -1,0 +1,23 @@
+=== Running parallel e2e recovery ===
+clock=MONOTONIC workers=6 cores=1,2,4,5,7,6
+  coord  0: FOUND a= 1 delta=-1 (127684 tries)
+  coord  1: FOUND a= 4 delta=+1 (38439 tries)
+  coord  2: FOUND a= 4 delta=+1 (72378 tries)
+  coord  3: FOUND a= 4 delta=+1 (25686 tries)
+  coord  4: FOUND a= 8 delta=-1 (856 tries)
+  coord  5: FOUND a=16 delta=+1 (279156 tries)
+  coord  6: FOUND a= 4 delta=-1 (265830 tries)
+  coord  7: FOUND a= 1 delta=+1 (86614 tries)
+  coord  8: FOUND a= 4 delta=-1 (10990 tries)
+  coord  9: FOUND a= 1 delta=+1 (5029 tries)
+  coord 10: FOUND a=16 delta=-1 (5727 tries)
+offline search (parallel): 325.2 s
+work items=13024, dispatching to 6 workers...
+
+per-worker calibrated gap (ns): 2536 2562 2482 2593 2594 2635
+PARALLEL recovery: coeffs=13024 (undone=0), N=100, workers=6
+  CHANNEL  12793/13024 = 98.2%
+  RECOVERY 12743/13024 = 97.8%  [all-zero baseline 71.9%]
+  nonzero  3587/3663 = 97.9%
+  wall 1260.2s for 13024 coeffs => 0.097 s/coef (parallel); per-decaps~0.479 ms
+  projected full matrix (13024): 0.35 h = 0.01 days (at this width)
