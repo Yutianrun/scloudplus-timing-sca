@@ -27,6 +27,5 @@ gcc -O2 -std=c99 \
   -lm -o "$BIN"
 echo "=== Build OK ==="
 
-echo "=== Running parallel e2e recovery ==="
-./"$BIN" "$@" > e2e-results.csv
-echo "=== Done — results in e2e-results.csv ==="
+echo "=== Running parallel e2e recovery ===" >&2
+./"$BIN" "$@"

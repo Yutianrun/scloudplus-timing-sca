@@ -175,15 +175,27 @@ int main(int argc,char**argv){
                     MAP_SHARED|MAP_ANONYMOUS,-1,0);
     if(pr==MAP_FAILED){perror("mmap pr");return 3;}
     memset(pr,0,sizeof(probe_t)*scloudplus_nbar);
+
+    char cache_fn[64]; snprintf(cache_fn,sizeof(cache_fn),"probe-cache-%llx.bin",
+                                (unsigned long long)krng);
+    int cached=0;
+    { FILE*cf=fopen(cache_fn,"rb");
+      if(cf){ fseek(cf,0,SEEK_END); long sz=ftell(cf); fseek(cf,0,SEEK_SET);
+        if(sz==(long)(sizeof(probe_t)*ncoord)){
+            if(fread(pr,sizeof(probe_t),ncoord,cf)==ncoord) cached=1; }
+        fclose(cf); } }
+    if(cached){
+        fprintf(stderr,"probe cache loaded from %s\n",cache_fn);
+        for(unsigned i=0;i<ncoord;i++)
+            fprintf(stderr,"  coord %2u: %s a=%2u delta=%+d (%u tries)\n",
+                    i,pr[i].found?"FOUND":"FAIL ",pr[i].a,pr[i].delta,pr[i].tries);
+    } else {
     uint64_t ot0=mono_ns();
     for(unsigned w=0;w<nworkers;w++){
         pid_t pid=fork();
         if(pid<0){perror("fork");return 4;}
         if(pid==0){
             pin_core(CORES[w]);
-            /* per-coord retry: the probe search is randomised, so a single
-             * RNG stream can miss within max_tries. Reseed and retry a few
-             * rounds so every coord is found with near certainty. */
             for(unsigned i=w;i<ncoord;i+=nworkers){
                 probe_t best; memset(&best,0,sizeof(best)); best.found=0;
                 for(unsigned att=0; att<4 && !best.found; att++){
@@ -202,6 +214,10 @@ int main(int argc,char**argv){
         fprintf(stderr,"  coord %2u: %s a=%2u delta=%+d (%u tries)\n",
                 i,pr[i].found?"FOUND":"FAIL ",pr[i].a,pr[i].delta,pr[i].tries);
     fprintf(stderr,"offline search (parallel): %.1f s\n",(double)(mono_ns()-ot0)/1e9);
+    FILE*cf=fopen(cache_fn,"wb");
+    if(cf){ fwrite(pr,sizeof(probe_t),ncoord,cf); fclose(cf);
+            fprintf(stderr,"probe cache written to %s\n",cache_fn); }
+    } /* end !cached */
 
     /* ---- references (pk-only), built once, inherited by workers ---- */
     static uint8_t m_lo[scloudplus_ss]={0},m_hi[scloudplus_ss]={0}; int hl=0,hh=0;
@@ -275,6 +291,9 @@ int main(int argc,char**argv){
                 res[it].true_v=center(S[(size_t)i*scloudplus_n+k]);
                 res[it].guess=guess; res[it].tb=tb; res[it].ts=ts;
                 res[it].nb=nb; res[it].ns=ns; res[it].done=1;
+                fprintf(stderr,"  [w%u] %zu/%zu coord=%u pos=%u true=%+d guess=%+d %s\n",
+                        w,it+1,nit,i,k,res[it].true_v,guess,
+                        guess==res[it].true_v?"OK":"MISS");
             }
             free(db);free(ds);free(tmp);
             _exit(0);
