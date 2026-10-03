@@ -5,9 +5,8 @@
 /*.json
 /*.txt
 
-# Compiled binary and probe cache.
+# Compiled binary.
 /recover-e2e-par
-/probe-cache-*.bin
 
 # macOS
 .DS_Store

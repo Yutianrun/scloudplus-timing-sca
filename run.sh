@@ -6,12 +6,13 @@ IMPL="latest-download/Implementations and Test_Vectors/Implementations"
 CORE="$IMPL/_shared/scloudplus_core"
 BIN=recover-e2e-par
 
-echo "=== Building $BIN ==="
-gcc -O2 -std=c99 \
+echo "=== Building $BIN (AVX2 + AES-NI) ==="
+gcc -O3 -std=c99 -mavx2 -mbmi2 -mpopcnt -maes \
   -DSCLOUDPLUS_FAMILY_AES \
-  -DSCLOUDPLUS_TIER_REFERENCE \
-  -DSCLOUDPLUS_REF_FAMILY_AES \
-  -I"$IMPL/Reference_Implementation/Scloudplus-256/kem" \
+  -DSCLOUDPLUS_TIER_OPTIMIZED \
+  -DSCLOUDPLUS_BACKEND_AVX2 \
+  -DSCLOUDPLUS_AVX2_FAMILY_AES \
+  -I"$IMPL/Optimized_Implementation/Scloudplus-256/kem" \
   -I"$CORE/include" \
   -I"$CORE/common" \
   -I"$IMPL/_shared/api_pkc" \
@@ -21,9 +22,10 @@ gcc -O2 -std=c99 \
   "$CORE/common/kem.c" \
   "$CORE/common/pke.c" \
   "$CORE/common/util.c" \
-  "$CORE/ref/matrix_reference.c" \
+  "$CORE/avx2/aes_aesni.c" \
+  "$CORE/avx2/sample_avx2.c" \
+  "$CORE/avx2/matrix_avx2.c" \
   "$CORE/ref/pack_reference.c" \
-  "$CORE/ref/aes_reference.c" \
   -lm -o "$BIN"
 echo "=== Build OK ==="
 
